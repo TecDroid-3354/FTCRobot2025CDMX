@@ -2,22 +2,23 @@ package org.firstinspires.ftc.teamcode.Constants.PedroPathingConstants;
 
 import com.pedropathing.localization.Encoder;
 import com.pedropathing.localization.constants.DriveEncoderConstants;
+import com.pedropathing.localization.constants.OTOSConstants;
 import com.pedropathing.localization.constants.ThreeWheelConstants;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 // This acts as a method of updating ThreeWheelConstants without direct access to it.
 public class LConstants { // This is how we change ThreeWheelConstants.
     static {
-        DriveEncoderConstants.forwardTicksToInches = 1;
-        DriveEncoderConstants.strafeTicksToInches = 1;
-        DriveEncoderConstants.turnTicksToInches = 1;
-
-        DriveEncoderConstants.robot_Width = 1;
-        DriveEncoderConstants.robot_Length = 1;
-
-        DriveEncoderConstants.leftFrontEncoderDirection = Encoder.FORWARD;
-        DriveEncoderConstants.rightFrontEncoderDirection = Encoder.FORWARD;
-        DriveEncoderConstants.leftRearEncoderDirection = Encoder.FORWARD;
-        DriveEncoderConstants.rightRearEncoderDirection = Encoder.FORWARD;
+        OTOSConstants.useCorrectedOTOSClass = false;
+        OTOSConstants.hardwareMapName = "otos";
+        OTOSConstants.linearUnit = DistanceUnit.INCH;
+        OTOSConstants.angleUnit = AngleUnit.RADIANS;
+        OTOSConstants.offset = new SparkFunOTOS.Pose2D(0, 0, Math.PI / 2);
+        OTOSConstants.linearScalar = 1.0;
+        OTOSConstants.angularScalar = 1.0;
     }
 }
 

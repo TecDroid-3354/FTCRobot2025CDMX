@@ -9,12 +9,14 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Commands.TeleopCommands.AlignToGamePiece;
 import org.firstinspires.ftc.teamcode.Constants.Constants.Ids;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Commands.JoystickCMD;
 import org.firstinspires.ftc.teamcode.Sensors.ColorDetector;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
+import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
 
 @TeleOp(name = "CMD", group = "Op Mode")
@@ -28,7 +30,11 @@ public class CMDOpMode extends CommandOpMode {
     @Override
     public void initialize() {
         imu = hardwareMap.get(IMU.class, Ids.imuId);
-        //otos = hardwareMap.get(SparkFunOTOS.class, "OTOS");
+
+        otos = hardwareMap.get(SparkFunOTOS.class, "otos");
+        otos.setAngularUnit(AngleUnit.DEGREES);
+        otos.setLinearUnit(DistanceUnit.INCH);
+        otos.resetTracking();
 
         mecanumDrivetrain = new MecanumDrivetrain(hardwareMap, telemetry);
         mecanumDrivetrain.setDefaultCommand(new JoystickCMD(
@@ -80,8 +86,13 @@ public class CMDOpMode extends CommandOpMode {
             if (colorDetector.getClosestDetectionPoint() != null){
                 telemetry.addData("ClosestDetection x:", colorDetector.getClosestDetectionPoint().x);
                 telemetry.addData("ClosestDetection y:", colorDetector.getClosestDetectionPoint().y);
+
+                //ColorBlobLocatorProcessor.Blob closestDetection = colorDetector.getClosestDetection();
+                //telemetry.addData("Orientation", colorDetector.getOrientationOfPiece(closestDetection.getBoxFit().angle, closestDetection.getAspectRatio()));
             }
-            colorDetector.colorDetectionsData();
+            //mecanumDrivetrain.motorsData();
+            //colorDetector.colorDetectionsData();
+            telemetry.addData("OTOS:", otos.getPosition());
             telemetry.update();
 
             run();

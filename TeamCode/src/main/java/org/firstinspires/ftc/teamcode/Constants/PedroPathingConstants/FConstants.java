@@ -11,7 +11,12 @@ import org.firstinspires.ftc.teamcode.Constants.Constants;
 public class FConstants { // This is how we change Follower Constants.
     static {
         // Select our localizer
-        FollowerConstants.localizers = Localizers.DRIVE_ENCODERS;
+        FollowerConstants.localizers = Localizers.OTOS;
+        FollowerConstants.mass = 10;
+        FollowerConstants.xMovement = 51.1;
+        FollowerConstants.yMovement = 31.1;
+        FollowerConstants.forwardZeroPowerAcceleration = -137.2;
+        FollowerConstants.lateralZeroPowerAcceleration = -146.5;
 
         FollowerConstants.leftFrontMotorName = Constants.Ids.frontLeftId;
         FollowerConstants.leftRearMotorName = Constants.Ids.backLeftId;

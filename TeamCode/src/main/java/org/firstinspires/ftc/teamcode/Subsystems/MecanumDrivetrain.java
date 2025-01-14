@@ -8,9 +8,13 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveKinematics;
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.MecanumDriveWheelSpeeds;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Constants.Constants;
 import org.firstinspires.ftc.teamcode.Constants.Constants.Ids;
 import org.firstinspires.ftc.teamcode.Constants.Constants.Velocities;
 import org.opencv.core.Point;
@@ -21,10 +25,10 @@ public class MecanumDrivetrain extends SubsystemBase {
     Telemetry telemetry;
 
     // Motors
-    DcMotor frontLeftMotor;
-    DcMotor backLeftMotor;
-    DcMotor frontRightMotor;
-    DcMotor backRightMotor;
+    DcMotorEx frontLeftMotor;
+    DcMotorEx backLeftMotor;
+    DcMotorEx frontRightMotor;
+    DcMotorEx backRightMotor;
 
     // Kinematics
     // Locations of the wheels relative to the robot center.
@@ -50,11 +54,10 @@ public class MecanumDrivetrain extends SubsystemBase {
     public MecanumDrivetrain (HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
 
-        // Motors
-        frontLeftMotor = hardwareMap.dcMotor.get(Ids.frontLeftId);
-        backLeftMotor = hardwareMap.dcMotor.get(Ids.backLeftId);
-        frontRightMotor = hardwareMap.dcMotor.get(Ids.frontRightId);
-        backRightMotor = hardwareMap.dcMotor.get(Ids.backRightId);
+        frontLeftMotor = hardwareMap.get(DcMotorEx.class, Ids.frontLeftId);
+        backLeftMotor = hardwareMap.get(DcMotorEx.class, Ids.backLeftId);
+        frontRightMotor = hardwareMap.get(DcMotorEx.class, Ids.frontRightId);
+        backRightMotor = hardwareMap.get(DcMotorEx.class, Ids.backRightId);
 
         frontRightMotor.setDirection(DcMotor.Direction.FORWARD);
         backRightMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -66,6 +69,28 @@ public class MecanumDrivetrain extends SubsystemBase {
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        // Reset encoders
+        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        // PIDF
+        frontRightMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                new PIDFCoefficients(0.0, 0, 0, Constants.MecanumConstants.kFrontRightF));
+        backRightMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                new PIDFCoefficients(0.0, 0, 0, Constants.MecanumConstants.kBackRightF));
+        frontLeftMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                new PIDFCoefficients(0.0, 0, 0, Constants.MecanumConstants.kFrontLeftF));
+        backLeftMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+                new PIDFCoefficients(0.0, 0, 0, Constants.MecanumConstants.kBackLeftF));
+
+        // Init runing using encoder mode
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         alignPController = new PController(0.05);
     }
 
@@ -75,33 +100,28 @@ public class MecanumDrivetrain extends SubsystemBase {
                 m_kinematics.toWheelSpeeds(speeds);
 
         // Get the individual wheel speeds
-        double frontLeft = wheelSpeeds.frontLeftMetersPerSecond;
-        double frontRight = wheelSpeeds.frontRightMetersPerSecond;
-        double backLeft = wheelSpeeds.rearLeftMetersPerSecond;
-        double backRight = wheelSpeeds.rearRightMetersPerSecond;
+        double convertionFactor = Constants.MecanumConstants.kMps2Radps;
 
-        frontLeftMotor.setPower(frontLeft);
-        frontRightMotor.setPower(frontRight);
-        backLeftMotor.setPower(backLeft);
-        backRightMotor.setPower(backRight);
+        double frontLeft = wheelSpeeds.frontLeftMetersPerSecond * convertionFactor;
+        double frontRight = wheelSpeeds.frontRightMetersPerSecond * convertionFactor;
+        double backLeft = wheelSpeeds.rearLeftMetersPerSecond * convertionFactor;
+        double backRight = wheelSpeeds.rearRightMetersPerSecond * convertionFactor;
+
+        frontLeftMotor.setVelocity(frontLeft, AngleUnit.RADIANS);
+        frontRightMotor.setVelocity(frontRight, AngleUnit.RADIANS);
+        backLeftMotor.setVelocity(backLeft, AngleUnit.RADIANS);
+        backRightMotor.setVelocity(backRight, AngleUnit.RADIANS);
     }
 
     public void basicDrive(double x, double y, double rx) {
-        double yVelocity = y * Velocities.driveMaxVelocity;
-        double xVelocity = x * Velocities.driveMaxVelocity;
-        double rxVelocity = rx * Velocities.angularMaxVelocity;
-
-        ChassisSpeeds speeds = new ChassisSpeeds(yVelocity, xVelocity, rxVelocity);
+        ChassisSpeeds speeds = new ChassisSpeeds(y, x, rx);
         drive(speeds);
     }
 
     public void driveFieldOriented(double x, double y, double rx, double robotHeading) {
-        double yVelocity = y * Velocities.driveMaxVelocity;
-        double xVelocity = x * Velocities.driveMaxVelocity;
-        double rxVelocity = rx * Velocities.angularMaxVelocity;
 
         ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                yVelocity, xVelocity, rxVelocity, Rotation2d.fromDegrees(robotHeading)
+                y, x, rx, Rotation2d.fromDegrees(robotHeading)
         );
         drive(speeds);
     }
@@ -117,10 +137,19 @@ public class MecanumDrivetrain extends SubsystemBase {
     }
 
     public void motorsData() {
-        telemetry.addData("FL", frontLeftMotor.getCurrentPosition());
-        telemetry.addData("FR", frontRightMotor.getCurrentPosition());
-        telemetry.addData("BL", backLeftMotor.getCurrentPosition());
-        telemetry.addData("BR", backRightMotor.getCurrentPosition());
+        /* position
+        double factor = Constants.MecanumConstants.kTicks2Rot;
+        telemetry.addData("FL", frontLeftMotor.getCurrentPosition() * factor);
+        telemetry.addData("FR", frontRightMotor.getCurrentPosition() * factor);
+        telemetry.addData("BL", backLeftMotor.getCurrentPosition() * factor);
+        telemetry.addData("BR", backRightMotor.getCurrentPosition() * factor);*/
+
+        // Velocity
+        double factor = Constants.MecanumConstants.kTicksps2mps;
+        telemetry.addData("FL mps", frontLeftMotor.getVelocity() * factor);
+        telemetry.addData("FR mps", frontRightMotor.getVelocity() * factor);
+        telemetry.addData("BL mps", backLeftMotor.getVelocity() * factor);
+        telemetry.addData("BR mps", backRightMotor.getVelocity() * factor);
     }
 
     public void stopMotors() {

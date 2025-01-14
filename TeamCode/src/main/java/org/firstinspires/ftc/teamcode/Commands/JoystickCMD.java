@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.controller.PController;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.teamcode.Constants.Constants;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 import org.opencv.core.Point;
 
@@ -58,9 +59,9 @@ public class JoystickCMD extends CommandBase {
     public void execute() {
         toggleFieldOriented();
 
-        double xVelocity = x.getAsDouble();
-        double yVelocity = y.getAsDouble();
-        double rxVelocity = rx.getAsDouble();
+        double xVelocity = x.getAsDouble() * Constants.MecanumConstants.maxMetersPerSecondDrive;
+        double yVelocity = y.getAsDouble() * Constants.MecanumConstants.maxMetersPerSecondDrive;
+        double rxVelocity = rx.getAsDouble() * Constants.MecanumConstants.maxMetersPerSecondRotation;
         double robotYaw = robotHeading.getAsDouble();
 
         if (fieldOrientedActived) {
