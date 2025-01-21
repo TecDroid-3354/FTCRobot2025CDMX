@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Commands.TeleopCommands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.Sensors.ColorDetector;
@@ -14,10 +16,11 @@ public class AlignToGamePiece extends CommandBase {
 
     MecanumDrivetrain mecanumDrivetrain;
     ColorDetector colorDetector;
+    private boolean isAligned = false;
 
-    Gamepad gamepad;
+    GamepadEx gamepad;
 
-    public AlignToGamePiece(MecanumDrivetrain mecanumDrivetrain, ColorDetector colorDetector, Gamepad gamepad) {
+    public AlignToGamePiece(MecanumDrivetrain mecanumDrivetrain, ColorDetector colorDetector, GamepadEx gamepad) {
         this.mecanumDrivetrain = mecanumDrivetrain;
         this.colorDetector = colorDetector;
         this.gamepad = gamepad;
@@ -40,7 +43,7 @@ public class AlignToGamePiece extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return !gamepad.right_bumper;
+        return !gamepad.getButton(GamepadKeys.Button.LEFT_BUMPER);
     }
 
 }

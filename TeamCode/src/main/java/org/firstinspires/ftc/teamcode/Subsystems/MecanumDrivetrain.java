@@ -16,7 +16,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Constants.Constants;
 import org.firstinspires.ftc.teamcode.Constants.Constants.Ids;
-import org.firstinspires.ftc.teamcode.Constants.Constants.Velocities;
 import org.opencv.core.Point;
 
 

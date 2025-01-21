@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.Constants.PedroPathingConstants;
 
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Localizers;
+import com.pedropathing.util.CustomFilteredPIDFCoefficients;
+import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -17,6 +19,15 @@ public class FConstants { // This is how we change Follower Constants.
         FollowerConstants.yMovement = 31.1;
         FollowerConstants.forwardZeroPowerAcceleration = -137.2;
         FollowerConstants.lateralZeroPowerAcceleration = -146.5;
+        //FollowerConstants.zeroPowerAccelerationMultiplier = 0.5;
+        FollowerConstants.drivePIDFCoefficients = new CustomFilteredPIDFCoefficients(0.02, 0.0, 0.0, 0.0, 0.0);
+        FollowerConstants.translationalPIDFCoefficients = new CustomPIDFCoefficients(0.08, 0.0, 0.006, 0.2);
+        FollowerConstants.secondaryTranslationalPIDFCoefficients = new CustomPIDFCoefficients(0.4, 0.0, 0.02, 0.02);
+
+        // PIDs
+        FollowerConstants.useSecondaryTranslationalPID = true;
+        FollowerConstants.useSecondaryHeadingPID = true;
+        FollowerConstants.useSecondaryDrivePID = true;
 
         FollowerConstants.leftFrontMotorName = Constants.Ids.frontLeftId;
         FollowerConstants.leftRearMotorName = Constants.Ids.backLeftId;

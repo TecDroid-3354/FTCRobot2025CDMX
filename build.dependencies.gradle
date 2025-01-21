@@ -5,6 +5,9 @@ repositories {
     maven { url = 'https://maven.brott.dev/' }
     maven { url= 'https://maven.pedropathing.com/' }
 
+    // Dashboard
+    maven { url = 'https://maven.brott.dev/' }
+
     google() // Needed for androidx
 }
 
@@ -21,6 +24,9 @@ dependencies {
 
     // Pedro pathing
     implementation 'com.pedropathing:pedro:1.0.5'
+
+    // Dashboard
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
+
 }
 

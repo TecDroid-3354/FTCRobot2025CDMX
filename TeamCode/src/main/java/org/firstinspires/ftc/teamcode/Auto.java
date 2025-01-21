@@ -10,7 +10,7 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants.PedroPathingConstants.FConstants;
 import org.firstinspires.ftc.teamcode.Constants.PedroPathingConstants.LConstants;
@@ -31,21 +31,50 @@ public class Auto extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private int pathState;
-    private final Pose startPose = new Pose(60.0, -60.0, Math.toRadians(90.0));
-    private final Pose point1 = new Pose(60, 36, Math.toRadians(-180));
-    private final Pose point2 = new Pose(-12, 36, Math.toRadians(-180));
+
+    // Leave pices points
+    private final Pose startPose = new Pose(0.0, -60.0, Math.toRadians(90.0));
+    private final Pose score1 = new Pose(-0.0, -37.0, Math.toRadians(90));
+    private final Pose cruve1 = new Pose(32, -40, Math.toRadians(90));
+    private final Pose goToPiece1 = new Pose(37, -8, Math.toRadians(90));
+    private final Pose curve2 = new Pose(43, -18, Math.toRadians(90));
+    private final Pose leavePiece1 = new Pose(43, -42, Math.toRadians(90));
+    private final Pose goToPiece2 = new Pose(45, -8, Math.toRadians(90));
+    private final Pose goRight = new Pose(48, -8, Math.toRadians(90));
+
+    private final Pose leavePiece2 = new Pose(49, -42, Math.toRadians(90));
+
+    // Pick smaple 1
+    private final Pose alignToSample = new Pose(45, -39, Math.toRadians(270));
+
+
+
     private Path scorePreload;
-    private PathChain goToPoint2;
+    private PathChain leavePiecePC;
 
     public void buildPaths() {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(point1)));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), point1.getHeading());
+        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(score1)));
+        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), score1.getHeading());
 
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
-        goToPoint2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(point1), new Point(point2)))
-                .setLinearHeadingInterpolation(point1.getHeading(), point2.getHeading())
+        leavePiecePC = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(score1), new Point(cruve1)))
+                .setLinearHeadingInterpolation(score1.getHeading(), cruve1.getHeading())
+                .addPath(new BezierCurve(new Point(cruve1), new Point(goToPiece1)))
+                .setLinearHeadingInterpolation(cruve1.getHeading(), goToPiece1.getHeading())
+                .addPath(new BezierCurve(new Point(goToPiece1), new Point(curve2)))
+                .setLinearHeadingInterpolation(goToPiece1.getHeading(), curve2.getHeading())
+                .addPath(new BezierLine(new Point(curve2), new Point(leavePiece1)))
+                .setLinearHeadingInterpolation(curve2.getHeading(), leavePiece1.getHeading())
+                .addPath(new BezierLine(new Point(leavePiece1), new Point(goToPiece2)))
+                .setLinearHeadingInterpolation(leavePiece1.getHeading(), goToPiece2.getHeading())
+                .addPath(new BezierLine(new Point(goToPiece2), new Point(goRight)))
+                .setLinearHeadingInterpolation(goToPiece2.getHeading(), goRight.getHeading())
+                .addPath(new BezierCurve(new Point(goRight), new Point(leavePiece2)))
+                .setLinearHeadingInterpolation(goRight.getHeading(), leavePiece2.getHeading())
+                .addPath(new BezierCurve(new Point(leavePiece2), new Point(alignToSample)))
+                .setLinearHeadingInterpolation(leavePiece2.getHeading(), alignToSample.getHeading())
                 .build();
 
     }
@@ -72,7 +101,7 @@ public class Auto extends OpMode {
                     /* Score Preload */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(goToPoint2,true);
+                    follower.followPath(leavePiecePC,true);
                     setPathState(2);
                 }
                 break;
@@ -140,5 +169,7 @@ public class Auto extends OpMode {
     @Override
     public void stop() {
     }
+
+
 }
 
