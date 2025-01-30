@@ -2,10 +2,12 @@ package org.firstinspires.ftc.teamcode.Subsystems.Arm;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants.Constants;
@@ -18,6 +20,10 @@ public class SliderAngle extends SubsystemBase {
     private final PIDController positionPIDController;
 
     private double targetPosition = 1.0;
+    private boolean goToPositionAllowed = false;
+    private boolean homeState = false;
+    private boolean intakeState = false;
+    private boolean basketState = false;
 
     public SliderAngle(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -31,7 +37,11 @@ public class SliderAngle extends SubsystemBase {
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, new PIDFCoefficients(4.0, 0.0, 0.0, 0.0));
+        leftMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, new PIDFCoefficients(4.0, 0.0, 0.0, 0.0));
+
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -40,12 +50,8 @@ public class SliderAngle extends SubsystemBase {
     }
 
     public void setPower(double power) {
-        if ((getAbsoluteEncoderPosition() < Constants.SliderAngle.downLimit && power < 0 || getAbsoluteEncoderPosition() > Constants.SliderAngle.upLimit && power > 0)) {
-            stopMotors();
-        } else {
-            rightMotor.setPower(power);
-            leftMotor.setPower(power);
-        }
+        rightMotor.setPower(power);
+        leftMotor.setPower(power);
     }
 
     public double getAbsoluteEncoderPosition() {
@@ -56,29 +62,74 @@ public class SliderAngle extends SubsystemBase {
     public void goToPosition(double position) {
         double currentPosition = getAbsoluteEncoderPosition();
         double velocity = positionPIDController.calculate(currentPosition, position);
+        velocity = Math.max(Math.min(1.0, velocity), -1.0);
 
-        setPower(velocity);
+        // avoid the overheating of the motors
+        boolean isInRestState = homeState || basketState;
+        if (isInRestState &&
+                (position + Constants.SliderAngle.positionTolerance >= currentPosition &&
+                        currentPosition >= position - Constants.SliderAngle.positionTolerance)) {
+            telemetry.addData("Is Resting", true);
+            stopMotors();
+        } else {
+            telemetry.addData("Is Resting", false);
+            setPower(velocity);
+        }
+
     }
 
     public void goToHomePosition() {
         targetPosition = Constants.SliderAngle.homePosition;
+
+        // change states
+        homeState = true;
+        intakeState = false;
+        basketState = false;
     }
 
     public void goToIntakePosition() {
         targetPosition = Constants.SliderAngle.intakePosition;
+
+        // change states
+        homeState = false;
+        intakeState = true;
+        basketState = false;
+    }
+    public void goToPosIntakePosition() {
+        targetPosition = Constants.SliderAngle.posIntakePosition;
+
+        // change states
+        homeState = false;
+        intakeState = false;
+        basketState = false;
     }
 
     public void goToSpecimenPosition() {
         targetPosition = Constants.SliderAngle.specimenScorePosition;
+
+        // change states
+        homeState = false;
+        intakeState = false;
+        basketState = false;
     }
 
     public void goToBasketPosition() {
         targetPosition = Constants.SliderAngle.basketScorePosition;
+
+        // change states
+        homeState = false;
+        intakeState = false;
+        basketState = true;
+    }
+
+    public boolean isAtPosition(double setPoint) {
+        double position = getAbsoluteEncoderPosition();
+        return setPoint + 0.5 >= position && position >= setPoint - 0.5;
     }
 
     @Override
     public void periodic() {
-        goToPosition(targetPosition);
+        //goToPosition(targetPosition);
     }
 
     public void stopMotors() {
@@ -87,5 +138,11 @@ public class SliderAngle extends SubsystemBase {
 
     public void encoderData() {
         telemetry.addData("Absolute Encoder", getAbsoluteEncoderPosition());
+        telemetry.addData("Power", rightMotor.getPower());
+    }
+
+    public void motorData() {
+        telemetry.addData("right", rightMotor.getCurrentPosition());
+        telemetry.addData("left", getAbsoluteEncoderPosition());
     }
 }

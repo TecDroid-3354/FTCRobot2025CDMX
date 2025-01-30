@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.button.GamepadButton;
+import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Commands.TeleopCommands.AlignToGamePiece;
+import org.firstinspires.ftc.teamcode.Commands.TeleopCommands.BasketScoreSecuence;
 import org.firstinspires.ftc.teamcode.Constants.Constants;
 import org.firstinspires.ftc.teamcode.Constants.Constants.Ids;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -23,7 +25,6 @@ import org.firstinspires.ftc.teamcode.Subsystems.Arm.Slider;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.SliderAngle;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Wrist;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
-import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
 
 @TeleOp(name = "CMD", group = "Op Mode")
@@ -34,12 +35,18 @@ public class CMDOpMode extends CommandOpMode {
     SparkFunOTOS otos;
     GamepadEx controller;
 
+    GamepadEx controller2;
+
     SliderAngle sliderAngle;
     Slider slider;
     Gripper gripper;
     GripperAngle gripperAngle;
     Arm arm;
     Wrist wrist;
+    BasketScoreSecuence basketScoreSecuence;
+
+    // Commands
+    private AlignToGamePiece alignToGamePiece;
 
     @Override
     public void initialize() {
@@ -69,12 +76,13 @@ public class CMDOpMode extends CommandOpMode {
         wrist = new Wrist(hardwareMap, telemetry);
 
         colorDetector = new ColorDetector(hardwareMap, telemetry, ColorRange.BLUE);
+        basketScoreSecuence = new BasketScoreSecuence(arm, slider, sliderAngle, gripper, gripperAngle, wrist);
 
         // Gamepad buttons
         controller = new GamepadEx(gamepad1);
+        controller2 = new GamepadEx(gamepad2);
 
-        // initial positions
-        //wrist.goToPosition(Constants.Wrist.intakePosition);
+        imu.resetYaw();
 
         configureButtonBindings();
     }
@@ -83,16 +91,43 @@ public class CMDOpMode extends CommandOpMode {
         new GamepadButton(controller, GamepadKeys.Button.START)
                 .whenPressed(new InstantCommand(() -> {
                     imu.resetYaw();
+                    otos.resetTracking();
                 }));
 
         new GamepadButton(controller, GamepadKeys.Button.RIGHT_STICK_BUTTON)
                 .whenPressed(new InstantCommand(() -> {
                     imu.resetYaw();
+                    otos.resetTracking();
                 }));
+
+        // Open gripper
+        new GamepadButton(controller2, GamepadKeys.Button.B)
+                .whenPressed(gripper::open)
+                .whenReleased(gripper::close);
+
+        // Change gripper orientation
+        new GamepadButton(controller2, GamepadKeys.Button.LEFT_STICK_BUTTON)
+                .whenPressed(gripperAngle::changeOrientation);
+
+        // Score specimen orientation
+        /*new GamepadButton(controller, GamepadKeys.Button.A)
+                .whenPressed(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                wrist.goToPosition(Constants.Wrist.intakePosition);
+                                try {Thread.sleep(500);} catch (InterruptedException e) {}
+                                gripper.open();
+                                wrist.goToPosition(Constants.Wrist.specimenScorePosition);
+                            }
+                        }
+
+                );*/
     }
 
     public double getGyroYaw() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        //return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        return otos.getPosition().h;
     }
 
     @Override
@@ -103,43 +138,50 @@ public class CMDOpMode extends CommandOpMode {
 
         // run the scheduler
         while (!isStopRequested() && opModeIsActive()) {
-            telemetry.addData("Yaw", getGyroYaw());
-            /*colorDetector.colorDetectionsData();
-            if (colorDetector.getClosestDetectionPoint() != null){
-                telemetry.addData("ClosestDetection x:", colorDetector.getClosestDetectionPoint().x);
-                telemetry.addData("ClosestDetection y:", colorDetector.getClosestDetectionPoint().y);
+            sliderAngle.encoderData();
+            slider.motorsData();
 
-                ColorBlobLocatorProcessor.Blob closestDetection = colorDetector.getClosestDetection();
-                telemetry.addData("Orientation", colorDetector.getOrientationOfPiece(closestDetection.getBoxFit().angle, closestDetection.getAspectRatio()));
-            }*/
-            //sliderAngle.encoderData();
-            //slider.motorsData();
-            //gripper.servoInfo();
-            //gripperAngle.servoInfo();
-            arm.servoInfo();
-            wrist.servoInfo();
-
+            // Intake secuence
             if (controller.getButton(GamepadKeys.Button.LEFT_BUMPER)){
                 arm.goToPosition(Constants.Arm.intakePosition);
                 wrist.goToPosition(Constants.Wrist.intakePosition);
                 sliderAngle.goToIntakePosition();
+                slider.goToIntakePosition();
                 gripper.open();
-            }if (controller.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.0){
-                sliderAngle.goToIntakePosition();
+            }if (controller.getButton(GamepadKeys.Button.RIGHT_BUMPER)){
                 arm.goToPosition(Constants.Arm.sampleTakePosition);
                 wrist.goToPosition(Constants.Wrist.intakePosition);
+                slider.goToIntakePosition();
                 gripper.close();
                 try {Thread.sleep(500);} catch (InterruptedException e) {}
                 arm.goToPosition(Constants.Arm.intakePosition);
+                sliderAngle.goToPosIntakePosition();
+            }
 
-            } if (controller.getButton(GamepadKeys.Button.RIGHT_BUMPER)){
+            // go to home position
+            if (controller.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.0){
                 arm.goToPosition(Constants.Arm.homePositon);
                 wrist.goToPosition(Constants.Wrist.homePositon);
                 sliderAngle.goToHomePosition();
+                slider.goToHomePosition();
+                gripperAngle.goToIntakePosition();
                 gripper.close();
             }
 
-            gripper.openClose(controller.getButton(GamepadKeys.Button.LEFT_STICK_BUTTON));
+
+            /*else if (controller.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.0) {
+                arm.goToPosition(Constants.Arm.specimenScorePosition);
+                wrist.goToPosition(Constants.Wrist.specimenScorePosition);
+                sliderAngle.goToSpecimenPosition();
+                slider.goToSpecimenPosition();
+                gripperAngle.goToSpecimenScorePosition();
+                gripper.close();
+            }*/
+
+            else if (controller.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.0) {
+                basketScoreSecuence.schedule();
+            }
+
 
             telemetry.update();
 

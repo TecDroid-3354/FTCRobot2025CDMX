@@ -1,22 +1,21 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Arm;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.controller.PController;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Constants.Constants;
 import org.firstinspires.ftc.teamcode.Constants.Constants.Ids;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Slider extends SubsystemBase {
-    private final DcMotorEx rightMotor;
-    private final DcMotorEx leftMotor;
+    private final DcMotor rightMotor;
+    private final DcMotor leftMotor;
     private final Telemetry telemetry;
     private final PIDController positionPIDController;
     private double targetPositon = 0.0;
@@ -27,8 +26,8 @@ public class Slider extends SubsystemBase {
         rightMotor = hardwareMap.get(DcMotorEx.class, Ids.sliderRightMotorId);
         leftMotor = hardwareMap.get(DcMotorEx.class, Ids.sliderLeftMotorId);
 
-        rightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -36,19 +35,19 @@ public class Slider extends SubsystemBase {
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        positionPIDController = new PIDController(0.45, 0.0, 0.3);
+        positionPIDController = new PIDController(1.0, 0.0, 0.0);
     }
 
     public double getRightEncoderPosition() {
-        return rightMotor.getCurrentPosition() * Constants.Slider.encoderConvertionFactor *
+        return rightMotor.getCurrentPosition() * Constants.Slider.encoderConversionFactor *
                 (Constants.Slider.rightEncoderReversed ? -1.0 : 1.0);
     }
 
     public double getLeftEncoderPosition() {
-        return leftMotor.getCurrentPosition() * Constants.Slider.encoderConvertionFactor *
+        return leftMotor.getCurrentPosition() * Constants.Slider.encoderConversionFactor *
                 (Constants.Slider.leftEncoderReversed ? -1.0 : 1.0);
     }
     public void setPower(double power) {
@@ -58,27 +57,45 @@ public class Slider extends SubsystemBase {
 
 
     public void goToPosition(double position) {
-        //double positionAvarage = (getRightEncoderPosition() + getLeftEncoderPosition()) / 2;
-        double positionAvarage = getRightEncoderPosition();
-        double velocity = -positionPIDController.calculate(positionAvarage, position);
+        double rightPosition = getRightEncoderPosition();
+        double leftPosition = getLeftEncoderPosition();
 
-        if (position + Constants.Slider.positionTolerance >= positionAvarage && positionAvarage >= position - Constants.Slider.positionTolerance){
+        double velocity = positionPIDController.calculate(rightPosition, position);
+        //double leftVelocity = positionPIDController.calculate(leftPosition, position);
+
+        rightMotor.setPower(velocity);
+        leftMotor.setPower(velocity);
+
+        /*if (position + Constants.Slider.positionTolerance >= positionAvarage && positionAvarage >= position - Constants.Slider.positionTolerance){
             stopMotors();
         } else {
             setPower(velocity);
-        }
+        }*/
+    }
+
+    public boolean isAtPosition(double setPoint) {
+        double position = getRightEncoderPosition();
+        return setPoint + 0.5 >= position && position >= setPoint - 0.5;
+    }
+
+    public void setTargetPositon(double position) {
+        targetPositon = position;
     }
 
     public void goToHomePosition() {
-        targetPositon = Constants.Slider.homePosition;
+        setTargetPositon(Constants.Slider.homePosition);
     }
 
     public void goToSpecimenPosition() {
-        targetPositon = Constants.Slider.specimenScorePosition;
+        setTargetPositon(Constants.Slider.specimenScorePosition);
     }
 
     public void goToBasketPosition() {
-        targetPositon = Constants.Slider.basketScorePosition;
+        setTargetPositon(Constants.Slider.basketScorePosition);
+    }
+
+    public void goToIntakePosition() {
+        setTargetPositon(Constants.Slider.intakePosition);
     }
 
     @Override
@@ -94,4 +111,9 @@ public class Slider extends SubsystemBase {
         telemetry.addData("RightMotor", getRightEncoderPosition());
         telemetry.addData("LeftMotor", getLeftEncoderPosition());
     }
+
+    /*public void motorsData() {
+        telemetry.addData("RightMotor", rightMotor.getCurrentPosition());
+        telemetry.addData("LeftMotor", leftMotor.getCurrentPosition());
+    }*/
 }

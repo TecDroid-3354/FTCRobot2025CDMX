@@ -12,27 +12,21 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Arm extends SubsystemBase {
     private Telemetry telemetry;
-    private final Servo servo;
+    private final Servo rightServo;
+    private final Servo leftServo;
 
     public Arm(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
-        servo = hardwareMap.get(Servo.class, Ids.armServo);
-        //goToPosition(0.0);
+        rightServo = hardwareMap.get(Servo.class, Ids.rightArmServo);
+        leftServo = hardwareMap.get(Servo.class, Ids.leftArmServo);
+
+        leftServo.setDirection(Servo.Direction.REVERSE);
     }
 
     public void goToPosition(double position) {
-        servo.setPosition(position / 180.0);
+        rightServo.setPosition(position / 180.0);
+
+        leftServo.setPosition(position / 180.0);
     }
 
-    public double getPosition() {
-        return servo.getPosition() * 180.0;
-    }
-
-    public boolean isAtPosition(double position) {
-        return position + 0.01 >= servo.getPosition() && servo.getPosition() >= position - 0.01;
-    }
-
-    public void servoInfo(){
-        telemetry.addData("Arm Info:", this.getPosition());
-    }
 }

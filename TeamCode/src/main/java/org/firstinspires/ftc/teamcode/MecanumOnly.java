@@ -7,48 +7,33 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.IMU;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Commands.TeleopCommands.AlignToGamePiece;
-import org.firstinspires.ftc.teamcode.Constants.Constants;
-import org.firstinspires.ftc.teamcode.Constants.Constants.Ids;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Commands.JoystickCMD;
-import org.firstinspires.ftc.teamcode.Sensors.ColorDetector;
+import org.firstinspires.ftc.teamcode.Constants.Constants;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Arm;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Gripper;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.GripperAngle;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Slider;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.SliderAngle;
-import org.firstinspires.ftc.teamcode.Subsystems.Arm.Wrist;
 import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
-import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
-import org.firstinspires.ftc.vision.opencv.ColorRange;
 
-@TeleOp(name = "CMD", group = "Op Mode")
-public class CMDOpMode extends CommandOpMode {
-    MecanumDrivetrain mecanumDrivetrain;
-    ColorDetector colorDetector;
-    IMU imu;
-    SparkFunOTOS otos;
-    GamepadEx controller;
-
+@TeleOp(name = "MecanumOnly", group = "Op Mode")
+public class MecanumOnly extends CommandOpMode {
+    private MecanumDrivetrain mecanumDrivetrain;
+    private GamepadEx controller;
+    private SparkFunOTOS otos;
     SliderAngle sliderAngle;
     Slider slider;
-    Gripper gripper;
-    GripperAngle gripperAngle;
     Arm arm;
-    Wrist wrist;
+
+    double pos = 0.0;
 
     @Override
     public void initialize() {
-        imu = hardwareMap.get(IMU.class, Ids.imuId);
 
         otos = hardwareMap.get(SparkFunOTOS.class, "otos");
         otos.setAngularUnit(AngleUnit.DEGREES);
-        otos.setLinearUnit(DistanceUnit.INCH);
-        otos.resetTracking();
 
         mecanumDrivetrain = new MecanumDrivetrain(hardwareMap, telemetry);
         mecanumDrivetrain.setDefaultCommand(new JoystickCMD(
@@ -60,21 +45,13 @@ public class CMDOpMode extends CommandOpMode {
                 mecanumDrivetrain
         ));
 
-        sliderAngle = new SliderAngle(hardwareMap, telemetry);
-        slider = new Slider(hardwareMap, telemetry);
-
-        gripper = new Gripper(hardwareMap, telemetry);
-        gripperAngle = new GripperAngle(hardwareMap, telemetry);
-        arm = new Arm(hardwareMap, telemetry);
-        wrist = new Wrist(hardwareMap, telemetry);
-
-        colorDetector = new ColorDetector(hardwareMap, telemetry, ColorRange.BLUE);
-
         // Gamepad buttons
         controller = new GamepadEx(gamepad1);
+        sliderAngle = new SliderAngle(hardwareMap, telemetry);
+        slider = new Slider(hardwareMap, telemetry);
+        arm = new Arm(hardwareMap, telemetry);
 
-        // initial positions
-        //wrist.goToPosition(Constants.Wrist.intakePosition);
+        otos.resetTracking();
 
         configureButtonBindings();
     }
@@ -82,17 +59,18 @@ public class CMDOpMode extends CommandOpMode {
         // reset IMU
         new GamepadButton(controller, GamepadKeys.Button.START)
                 .whenPressed(new InstantCommand(() -> {
-                    imu.resetYaw();
+                    otos.resetTracking();
                 }));
 
         new GamepadButton(controller, GamepadKeys.Button.RIGHT_STICK_BUTTON)
                 .whenPressed(new InstantCommand(() -> {
-                    imu.resetYaw();
+                    otos.resetTracking();
                 }));
     }
 
     public double getGyroYaw() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        //return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        return otos.getPosition().h;
     }
 
     @Override
@@ -103,51 +81,23 @@ public class CMDOpMode extends CommandOpMode {
 
         // run the scheduler
         while (!isStopRequested() && opModeIsActive()) {
-            telemetry.addData("Yaw", getGyroYaw());
-            //sliderAngle.motorData();
+            sliderAngle.encoderData();
             slider.motorsData();
-            //gripper.servoInfo();
-            //gripperAngle.servoInfo();
-            //arm.servoInfo();
-            //wrist.servoInfo();
 
-            if (controller.getButton(GamepadKeys.Button.LEFT_BUMPER)){
-                arm.goToPosition(Constants.Arm.intakePosition);
-                wrist.goToPosition(Constants.Wrist.intakePosition);
-                //sliderAngle.goToIntakePosition();
-                slider.goToIntakePosition();
-                gripperAngle.goToLateralPosition();
-                gripper.open();
-            }if (controller.getButton(GamepadKeys.Button.RIGHT_BUMPER)){
-                arm.goToPosition(Constants.Arm.sampleTakePosition);
-                wrist.goToPosition(Constants.Wrist.intakePosition);
-                //sliderAngle.goToIntakePosition();
-                slider.goToIntakePosition();
-                gripperAngle.goToLateralPosition();
-                gripper.close();
-                try {Thread.sleep(500);} catch (InterruptedException e) {}
-                arm.goToPosition(Constants.Arm.intakePosition);
-
-            } if (controller.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.0){
-                arm.goToPosition(Constants.Arm.homePositon);
-                wrist.goToPosition(Constants.Wrist.homePositon);
-                //sliderAngle.goToHomePosition();
+            if (gamepad1.x) {
                 slider.goToHomePosition();
-                gripper.close();
-            } else if (controller.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.0) {
-                arm.goToPosition(Constants.Arm.specimenScorePosition);
-                wrist.goToPosition(Constants.Wrist.specimenScorePosition);
-                //sliderAngle.goToSpecimenPosition();
-                slider.goToSpecimenPosition();
-                gripper.close();
+            } else if (gamepad1.b) {
+                slider.goToBasketPosition();
+            } else {
+                slider.setPower(0.0);
             }
-            gripper.openClose(controller.getButton(GamepadKeys.Button.LEFT_STICK_BUTTON));
-
 
             telemetry.update();
 
             run();
         }
         reset();
+
+
     }
 }

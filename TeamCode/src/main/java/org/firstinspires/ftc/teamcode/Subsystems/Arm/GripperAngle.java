@@ -14,6 +14,8 @@ public class GripperAngle extends SubsystemBase {
     private Telemetry telemetry;
     private final Servo servo;
 
+    public boolean isLateral = true;
+
     public GripperAngle(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
         servo = hardwareMap.get(Servo.class, Ids.gripperAngleServo);
@@ -25,6 +27,29 @@ public class GripperAngle extends SubsystemBase {
 
     public void goToLateralPosition() {
         goToPosition(Constants.Gripper.lateralPosition);
+        isLateral = true;
+    }
+    public void goToVerticalPosition() {
+        goToPosition(Constants.Gripper.verticalPosition);
+        isLateral = false;
+    }
+
+    public void goToIntakePosition() {
+        goToPosition(Constants.Gripper.intakePosition);
+        isLateral = true;
+    }
+
+    public void goToSpecimenScorePosition() {
+        goToPosition(Constants.Gripper.specimenScorePositon);
+        isLateral = true;
+    }
+
+    public void changeOrientation() {
+        if (isLateral) {
+            goToVerticalPosition();
+        } else {
+            goToLateralPosition();
+        }
     }
 
     public double getPosition() {

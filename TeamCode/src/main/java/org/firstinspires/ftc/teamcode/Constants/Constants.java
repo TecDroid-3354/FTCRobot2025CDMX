@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.Constants;
 
-import org.opencv.core.Mat;
-
 public class Constants {
-    public static final class Velocities {
+    public final class Velocities {
         // Meccanum drive
-        public static final double driveMaxVelocity = 0.5;
-        public static final double angularMaxVelocity = 0.5;
+        public final double driveMaxVelocity = 2.0;
+        public final double angularMaxVelocity = 2.0;
 
     }
 
@@ -27,7 +25,8 @@ public class Constants {
         public static String webcamName = "webcam0";
 
         // Arm
-        public static String armServo = "armServo";
+        public static String rightArmServo = "rightArmServo";
+        public static String leftArmServo = "leftArmServo";
         public static String wristServo = "wristServo";
         public static String gripperAngleServo = "gripperAngleServo";
         public static String gripperServo = "gripperServo";
@@ -60,37 +59,43 @@ public class Constants {
         public static double kBackLeftF = 17.0;
         public static double kBackRightF = 17.0;
 
+        public static double positionTolerance = 1.0;
+
     }
 
     public static final class Arm {
         // Positions
-        public static double homePositon = 180.0;
+        public static double homePositon = 170.0;
         public static double intakePosition = 40;
         public static double sampleTakePosition = 0.0;
         public static double specimenTakePosition = 180.0;
-        public static double specimenScorePosition = 0.0;
+        public static double specimenScorePosition = 20.0; // 10
         public static double basketScorePosition = 0.0;
 
     }
 
     public static final class Wrist {
         // Positions
-        public static double homePositon = 180.0;
-        public static double intakePosition = 20.0;
+        public static double homePositon = 170.0;
+        public static double intakePosition = 0.0;
         public static double sampleTakePosition = 0.0;
         public static double specimenTakePosition = 0.0;
-        public static double specimenScorePosition = 0.0;
+        public static double specimenScorePosition = 110.0;
         public static double basketScorePosition = 0.0;
 
     }
 
     public static final class Gripper {
         // Positions gripper
-        public static double openPositon = 180.0;
-        public static double closePosition = 0.0;
+        public static double openPositon = 160;
+        public static double closePosition = 110;
 
         // Positions gripper angle
         public static double lateralPosition = 0.0;
+        public static double verticalPosition = 75.0;
+
+        public static double intakePosition = 0.0;
+        public static double specimenScorePositon = 130.0       ;
 
     }
 
@@ -99,16 +104,18 @@ public class Constants {
         public static double maxAngularVelocity = 30;
 
         // Positions
-        public static int homePosition = 0;
-        public static int specimenScorePosition = 0;
+        public static double homePosition = 0.55;
+        public static double intakePosition = 1.7;
 
-        public static int basketScorePosition = 0;
+        public static double specimenScorePosition = 1.2; // 2.0
 
-        public static double encoderConvertionFactor = 1 / 537.7;
-        public static boolean rightEncoderReversed = false;
-        public static boolean leftEncoderReversed = false;
+        public static double basketScorePosition = 7.2;
 
-        public static double positionTolerance = 0.1;
+        public static double encoderConversionFactor = 1 / 537.7;
+        public static boolean rightEncoderReversed = true;
+        public static boolean leftEncoderReversed = true;
+
+        public static double positionTolerance = 0.05;
 
         public static int upLimit = 0;
         public static int downLimit = 0;
@@ -117,8 +124,8 @@ public class Constants {
     public static final class SliderAngle {
         // Velocity
         public static double maxAngularVelocity = 30;
-        public static double positionTolerance = 0.1;
-        public static double upLimit = 89.0;
+        public static double positionTolerance = 0.0;
+        public static double upLimit = 90;
         public static double downLimit = 1.0;
 
         // Encoder
@@ -126,12 +133,13 @@ public class Constants {
 
 
         // Positions
-        public static double homePosition = 180.0;
-        public static double intakePosition = 1.0;
+        public static double homePosition = 90; // 550.0
+        public static double intakePosition = 3.5; // 55.0
+        public static double posIntakePosition = 5.0; // 55.0
 
-        public static double specimenScorePosition = 0;
+        public static double specimenScorePosition = 35;
 
-        public static double basketScorePosition = 0;
+        public static double basketScorePosition = 77;
     }
 
 

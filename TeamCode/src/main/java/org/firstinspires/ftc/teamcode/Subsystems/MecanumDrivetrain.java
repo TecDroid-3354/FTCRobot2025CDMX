@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PController;
@@ -90,7 +90,7 @@ public class MecanumDrivetrain extends SubsystemBase {
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        alignPController = new PController(0.05);
+        alignPController = new PController(0.015);
     }
 
     public void drive(ChassisSpeeds speeds) {
@@ -125,24 +125,27 @@ public class MecanumDrivetrain extends SubsystemBase {
         drive(speeds);
     }
 
-    public void  alignToGamePiece(Point closestDetection) {
+    public boolean  alignToGamePiece(Point closestDetection) {
         // Camera Center point
         Point centerOfCamera = new Point(160, 120);
 
-        double xVelocity = alignPController.calculate(closestDetection.x, centerOfCamera.x);
+        // speeds
+        ChassisSpeeds speeds;
 
-        ChassisSpeeds speeds = new ChassisSpeeds(0.0, xVelocity, 0.0);
+        // Sample positions
+        double xSamplePoint = closestDetection.x;
+        double ySamplePoint = closestDetection.y;
+
+        double yVelocity = alignPController.calculate(ySamplePoint, centerOfCamera.y);
+        double xVelocity = alignPController.calculate(xSamplePoint, centerOfCamera.x);
+        speeds = new ChassisSpeeds(yVelocity, xVelocity, 0.0);
+
         drive(speeds);
+
+        return false;
     }
 
     public void motorsData() {
-        /* position
-        double factor = Constants.MecanumConstants.kTicks2Rot;
-        telemetry.addData("FL", frontLeftMotor.getCurrentPosition() * factor);
-        telemetry.addData("FR", frontRightMotor.getCurrentPosition() * factor);
-        telemetry.addData("BL", backLeftMotor.getCurrentPosition() * factor);
-        telemetry.addData("BR", backRightMotor.getCurrentPosition() * factor);*/
-
         // Velocity
         double factor = Constants.MecanumConstants.kTicksps2mps;
         telemetry.addData("FL mps", frontLeftMotor.getVelocity() * factor);
