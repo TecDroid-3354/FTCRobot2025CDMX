@@ -44,7 +44,7 @@ public class BasketScoreSecuence extends CommandBase {
                 slider.isAtPosition(Constants.Slider.basketScorePosition)) {
             if (sliderAngle.isAtPosition(Constants.SliderAngle.basketScorePosition)) {
                 gripper.open();
-                try {Thread.sleep(500);} catch (InterruptedException e) {}
+                try {Thread.sleep(1000);} catch (InterruptedException e) {}
                 sliderAngle.goToHomePosition();
                 slider.goToHomePosition();
                 arm.goToPosition(Constants.Arm.homePositon);
@@ -52,17 +52,16 @@ public class BasketScoreSecuence extends CommandBase {
                 isAtPosition = true;
             } else {
                 sliderAngle.goToBasketPosition();
+                try {Thread.sleep(1000);} catch (InterruptedException e) {}
             }
         } else {
             // Go to basket position
             sliderAngle.goToHomePosition();
             if (sliderAngle.isAtPosition(Constants.SliderAngle.homePosition)) {
                 slider.goToBasketPosition();
+            } else {
                 arm.goToPosition(Constants.Arm.basketScorePosition);
                 wrist.goToPosition(Constants.Wrist.basketScorePosition);
-            } else {
-                arm.goToPosition(Constants.Arm.homePositon);
-                wrist.goToPosition(Constants.Wrist.homePositon);
             }
         }
 

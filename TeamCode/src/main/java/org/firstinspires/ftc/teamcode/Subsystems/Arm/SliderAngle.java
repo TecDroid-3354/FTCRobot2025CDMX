@@ -124,12 +124,12 @@ public class SliderAngle extends SubsystemBase {
 
     public boolean isAtPosition(double setPoint) {
         double position = getAbsoluteEncoderPosition();
-        return setPoint + 0.5 >= position && position >= setPoint - 0.5;
+        return setPoint + 0.8 >= position && position >= setPoint - 0.8;
     }
 
     @Override
     public void periodic() {
-        //goToPosition(targetPosition);
+        goToPosition(targetPosition);
     }
 
     public void stopMotors() {

@@ -76,7 +76,7 @@ public class Constants {
 
     public static final class Wrist {
         // Positions
-        public static double homePositon = 170.0;
+        public static double homePositon = 180.0;
         public static double intakePosition = 0.0;
         public static double sampleTakePosition = 0.0;
         public static double specimenTakePosition = 0.0;
