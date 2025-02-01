@@ -46,7 +46,7 @@ public class SliderAngle extends SubsystemBase {
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        positionPIDController = new PIDController(0.025, 0.0, 0.0);
+        positionPIDController = new PIDController(0.02, 0.0, 0.0);
     }
 
     public void setPower(double power) {
@@ -64,18 +64,22 @@ public class SliderAngle extends SubsystemBase {
         double velocity = positionPIDController.calculate(currentPosition, position);
         velocity = Math.max(Math.min(1.0, velocity), -1.0);
 
-        // avoid the overheating of the motors
+        /* avoid the overheating of the motors
         boolean isInRestState = homeState || basketState;
         if (isInRestState &&
                 (position + Constants.SliderAngle.positionTolerance >= currentPosition &&
                         currentPosition >= position - Constants.SliderAngle.positionTolerance)) {
-            telemetry.addData("Is Resting", true);
             stopMotors();
         } else {
-            telemetry.addData("Is Resting", false);
             setPower(velocity);
-        }
+        }*/
 
+        setPower(velocity);
+
+    }
+
+    public void setTargetPosition(double position){
+        targetPosition = position;
     }
 
     public void goToHomePosition() {
@@ -104,6 +108,15 @@ public class SliderAngle extends SubsystemBase {
         basketState = false;
     }
 
+    public void goToQuesadillaPosition() {
+        targetPosition = Constants.SliderAngle.quesadillaPosition;
+
+        // change states
+        homeState = false;
+        intakeState = false;
+        basketState = false;
+    }
+
     public void goToSpecimenPosition() {
         targetPosition = Constants.SliderAngle.specimenScorePosition;
 
@@ -125,6 +138,7 @@ public class SliderAngle extends SubsystemBase {
     public boolean isAtPosition(double setPoint) {
         double position = getAbsoluteEncoderPosition();
         return setPoint + 0.8 >= position && position >= setPoint - 0.8;
+        //return position >= setPoint - 0.8;
     }
 
     @Override

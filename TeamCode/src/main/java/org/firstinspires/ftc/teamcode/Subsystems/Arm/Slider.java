@@ -38,7 +38,7 @@ public class Slider extends SubsystemBase {
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        positionPIDController = new PIDController(1.0, 0.0, 0.0);
+        positionPIDController = new PIDController(0.45, 0.0, 0.0);
     }
 
     public double getRightEncoderPosition() {
@@ -60,7 +60,7 @@ public class Slider extends SubsystemBase {
         double rightPosition = getRightEncoderPosition();
         double leftPosition = getLeftEncoderPosition();
 
-        double velocity = positionPIDController.calculate(rightPosition, position);
+        double velocity = positionPIDController.calculate(leftPosition, position);
         //double leftVelocity = positionPIDController.calculate(leftPosition, position);
 
         rightMotor.setPower(velocity);
@@ -74,8 +74,8 @@ public class Slider extends SubsystemBase {
     }
 
     public boolean isAtPosition(double setPoint) {
-        double position = getRightEncoderPosition();
-        return setPoint + 0.5 >= position && position >= setPoint - 0.5;
+        double position = getLeftEncoderPosition();
+        return setPoint + 0.6 >= position && position >= setPoint - 0.6;
     }
 
     public void setTargetPositon(double position) {

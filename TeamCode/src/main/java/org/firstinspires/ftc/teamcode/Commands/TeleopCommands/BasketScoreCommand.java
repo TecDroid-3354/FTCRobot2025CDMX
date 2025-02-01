@@ -1,22 +1,17 @@
 package org.firstinspires.ftc.teamcode.Commands.TeleopCommands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 import org.firstinspires.ftc.teamcode.Constants.Constants;
-import org.firstinspires.ftc.teamcode.Sensors.ColorDetector;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Arm;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Gripper;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.GripperAngle;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Slider;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.SliderAngle;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Wrist;
-import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
-import org.opencv.core.Point;
 
-public class basketPositionSecuence extends CommandBase {
-    private boolean isAtPosition = false;
+public class BasketScoreCommand extends CommandBase {
+    private boolean finish = false;
     Slider slider;
     SliderAngle sliderAngle;
     Gripper gripper;
@@ -24,12 +19,12 @@ public class basketPositionSecuence extends CommandBase {
     Arm arm;
     Wrist wrist;
 
-    public basketPositionSecuence(Arm arm,
-                            Slider slider,
-                            SliderAngle sliderAngle,
-                            Gripper gripper,
-                            GripperAngle gripperAngle,
-                            Wrist wrist) {
+    public BasketScoreCommand(Arm arm,
+                              Slider slider,
+                              SliderAngle sliderAngle,
+                              Gripper gripper,
+                              GripperAngle gripperAngle,
+                              Wrist wrist) {
 
         this.arm = arm;
         this.slider = slider;
@@ -42,21 +37,29 @@ public class basketPositionSecuence extends CommandBase {
 
     @Override
     public void execute() {
-        arm.goToPosition(Constants.Arm.homePositon);
-        wrist.goToPosition(Constants.Wrist.homePositon);
-        sliderAngle.goToHomePosition();
-        if (sliderAngle.isAtPosition(Constants.SliderAngle.homePosition)) {
-            slider.goToBasketPosition();
+        if (!slider.isAtPosition(Constants.Slider.basketScorePosition)) {
             arm.goToPosition(Constants.Arm.basketScorePosition);
             wrist.goToPosition(Constants.Wrist.basketScorePosition);
-            isAtPosition = true;
+
+            if (sliderAngle.isAtPosition(Constants.SliderAngle.homePosition)) {
+                slider.goToBasketPosition();
+            } else {
+                sliderAngle.goToHomePosition();
+            }
+        } else {
+            sliderAngle.goToBasketPosition();
+            if (sliderAngle.isAtPosition(Constants.SliderAngle.basketScorePosition)) {
+                finish = true;
+            }
+
         }
 
     }
 
     @Override
     public boolean isFinished() {
-        return isAtPosition;
+        //return sliderAngle.isAtPosition(Constants.SliderAngle.basketScorePosition);
+        return finish;
     }
 
 }

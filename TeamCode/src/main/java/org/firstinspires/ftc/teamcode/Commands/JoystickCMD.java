@@ -24,6 +24,8 @@ public class JoystickCMD extends CommandBase {
     private boolean btnPressed = false;
     private boolean fieldOrientedActived = true;
 
+    private double velocityFactor = 1.0;
+
     private MecanumDrivetrain mecanumDrivetrain;
     private IMU imu;
 
@@ -55,10 +57,10 @@ public class JoystickCMD extends CommandBase {
 
     @Override
     public void execute() {
-        toggleFieldOriented();
+        //toggleFieldOriented();
 
-        double xVelocity = x.getAsDouble() * Constants.MecanumConstants.maxMetersPerSecondDrive;
-        double yVelocity = y.getAsDouble() * Constants.MecanumConstants.maxMetersPerSecondDrive;
+        double xVelocity = x.getAsDouble() * Constants.MecanumConstants.maxMetersPerSecondDrive * velocityFactor;
+        double yVelocity = y.getAsDouble() * Constants.MecanumConstants.maxMetersPerSecondDrive * velocityFactor;
         double rxVelocity = rx.getAsDouble() * Constants.MecanumConstants.maxMetersPerSecondRotation;
         double robotYaw = robotHeading.getAsDouble();
 
@@ -68,5 +70,9 @@ public class JoystickCMD extends CommandBase {
             mecanumDrivetrain.basicDrive(xVelocity, yVelocity, rxVelocity);
         }
 
+    }
+
+    public void setVelocityFactor(double velocityFactor) {
+        this.velocityFactor = velocityFactor;
     }
 }

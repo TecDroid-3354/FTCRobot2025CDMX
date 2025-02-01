@@ -66,7 +66,7 @@ public class Constants {
     public static final class Arm {
         // Positions
         public static double homePositon = 170.0;
-        public static double intakePosition = 40;
+        public static double intakePosition = 30;
         public static double sampleTakePosition = 0.0;
         public static double specimenTakePosition = 180.0;
         public static double specimenScorePosition = 20.0; // 10
@@ -88,11 +88,11 @@ public class Constants {
     public static final class Gripper {
         // Positions gripper
         public static double openPositon = 160;
-        public static double closePosition = 110;
+        public static double closePosition = 105;
 
         // Positions gripper angle
         public static double lateralPosition = 0.0;
-        public static double verticalPosition = 75.0;
+        public static double verticalPosition = 35.0; // 75
 
         public static double intakePosition = 0.0;
         public static double specimenScorePositon = 130.0       ;
@@ -104,8 +104,8 @@ public class Constants {
         public static double maxAngularVelocity = 30;
 
         // Positions
-        public static double homePosition = 0.55;
-        public static double intakePosition = 1.7;
+        public static double homePosition = 0.1;
+        public static double intakePosition = 2.0;
 
         public static double specimenScorePosition = 1.2; // 2.0
 
@@ -133,9 +133,10 @@ public class Constants {
 
 
         // Positions
-        public static double homePosition = 90; // 550.0
-        public static double intakePosition = 3.5; // 55.0
-        public static double posIntakePosition = 5.0; // 55.0
+        public static double homePosition = 89; // 550.0
+        public static double intakePosition = 3.0; // 55.0
+        public static double quesadillaPosition = 6.0;
+        public static double posIntakePosition = 0.0; // 55.0
 
         public static double specimenScorePosition = 35;
 
