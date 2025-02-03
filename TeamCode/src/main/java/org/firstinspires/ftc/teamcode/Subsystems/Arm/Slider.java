@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Subsystems.Arm;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -38,7 +37,7 @@ public class Slider extends SubsystemBase {
         rightMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        positionPIDController = new PIDController(0.45, 0.0, 0.0);
+        positionPIDController = new PIDController(0.5, 0.0, 0.0);
     }
 
     public double getRightEncoderPosition() {
@@ -66,16 +65,11 @@ public class Slider extends SubsystemBase {
         rightMotor.setPower(velocity);
         leftMotor.setPower(velocity);
 
-        /*if (position + Constants.Slider.positionTolerance >= positionAvarage && positionAvarage >= position - Constants.Slider.positionTolerance){
-            stopMotors();
-        } else {
-            setPower(velocity);
-        }*/
     }
 
     public boolean isAtPosition(double setPoint) {
         double position = getLeftEncoderPosition();
-        return setPoint + 0.6 >= position && position >= setPoint - 0.6;
+        return setPoint + 0.8 >= position && position >= setPoint - 0.8;
     }
 
     public void setTargetPositon(double position) {

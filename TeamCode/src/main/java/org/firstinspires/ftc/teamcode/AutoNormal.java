@@ -1,12 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
-import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.button.GamepadButton;
-import com.arcrobotics.ftclib.command.button.Trigger;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.arcrobotics.ftclib.gamepad.TriggerReader;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
@@ -14,18 +8,8 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.IMU;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Commands.TeleopCommands.BasketScoreCommand;
-import org.firstinspires.ftc.teamcode.Commands.TeleopCommands.TakeSampleCommand;
 import org.firstinspires.ftc.teamcode.Constants.Constants;
-import org.firstinspires.ftc.teamcode.Constants.Constants.Ids;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Commands.JoystickCMD;
 import org.firstinspires.ftc.teamcode.Constants.PedroPathingConstants.FConstants;
 import org.firstinspires.ftc.teamcode.Constants.PedroPathingConstants.LConstants;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Arm;
@@ -34,10 +18,9 @@ import org.firstinspires.ftc.teamcode.Subsystems.Arm.GripperAngle;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Slider;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.SliderAngle;
 import org.firstinspires.ftc.teamcode.Subsystems.Arm.Wrist;
-import org.firstinspires.ftc.teamcode.Subsystems.MecanumDrivetrain;
 
-@Autonomous(name = "Auto", group = "Examples")
-public class Auto extends CommandOpMode {
+@Autonomous(name = "AutoNormal", group = "Examples")
+public class AutoNormal extends CommandOpMode {
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -68,6 +51,8 @@ public class Auto extends CommandOpMode {
     private final Pose goFrontToPiece3 = new Pose(-57, -10, Math.toRadians(80.0));
     private final Pose goLeftToPiece3 = new Pose(-61, -10, Math.toRadians(80.0));
     private final Pose leavePiece3 = new Pose(-61, -58, Math.toRadians(80.0));
+
+    private final Pose goFrontFinal = new Pose(-57, -10, Math.toRadians(80.0));
 
 
 
@@ -107,6 +92,11 @@ public class Auto extends CommandOpMode {
                 .setLinearHeadingInterpolation(goFrontToPiece3.getHeading(), goLeftToPiece3.getHeading())
                 .addPath(new BezierLine(new Point(goLeftToPiece3), new Point(leavePiece3)))
                 .setLinearHeadingInterpolation(goLeftToPiece3.getHeading(), leavePiece3.getHeading())
+
+                // Go front final
+                .addPath(new BezierLine(new Point(leavePiece3), new Point(goFrontFinal)))
+                .setLinearHeadingInterpolation(leavePiece3.getHeading(), goFrontFinal.getHeading())
+
                 .build();
 
     }

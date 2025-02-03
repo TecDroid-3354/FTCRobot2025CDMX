@@ -16,7 +16,6 @@ public class Wrist extends SubsystemBase {
     public Wrist(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
         servo = hardwareMap.get(Servo.class, Ids.wristServo);
-        //servo.setPosition(60.0);
     }
 
     public void goToPosition(double position) {
@@ -24,7 +23,7 @@ public class Wrist extends SubsystemBase {
     }
 
     public double getPosition() {
-        return servo.getPosition() * 180.0;
+        return servo.getController().getServoPosition(2) * 180.0;
     }
 
     public void servoInfo(){

@@ -41,8 +41,15 @@ public class TakeSampleCommand extends CommandBase {
         arm.goToPosition(Constants.Arm.sampleTakePosition);
         wrist.goToPosition(Constants.Wrist.intakePosition);
         slider.goToIntakePosition();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+        }
         gripper.close();
-        try {Thread.sleep(650);} catch (InterruptedException e) {}
+        try {
+            Thread.sleep(650);
+        } catch (InterruptedException e) {
+        }
         arm.goToPosition(Constants.Arm.intakePosition);
         finish = true;
 

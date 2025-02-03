@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Arm;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -44,16 +43,8 @@ public class GripperAngle extends SubsystemBase {
         isLateral = true;
     }
 
-    public void changeOrientation() {
-        if (isLateral) {
-            goToVerticalPosition();
-        } else {
-            goToLateralPosition();
-        }
-    }
-
     public double getPosition() {
-        return servo.getPosition() * 180.0;
+        return servo.getController().getServoPosition(3) * 180.0;
     }
 
     public void servoInfo(){

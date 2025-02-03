@@ -88,14 +88,14 @@ public class Constants {
     public static final class Gripper {
         // Positions gripper
         public static double openPositon = 160;
-        public static double closePosition = 105;
+        public static double closePosition = 112;
 
         // Positions gripper angle
-        public static double lateralPosition = 0.0;
-        public static double verticalPosition = 35.0; // 75
+        public static double lateralPosition = 15.0;
+        public static double verticalPosition = 55; // 75
 
         public static double intakePosition = 0.0;
-        public static double specimenScorePositon = 130.0       ;
+        public static double specimenScorePositon = 130.0;
 
     }
 

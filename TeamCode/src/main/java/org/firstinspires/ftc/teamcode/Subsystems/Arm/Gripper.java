@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems.Arm;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -14,7 +13,6 @@ public class Gripper extends SubsystemBase {
     private Boolean isOpen = false;
     public Telemetry telemetry;
     public final Servo servo;
-    boolean buttonOpenCloseIsPressed = false;
 
     public Gripper(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -36,27 +34,8 @@ public class Gripper extends SubsystemBase {
         isOpen = false;
     }
 
-    public void openClose(boolean button) {
-        if (button && !buttonOpenCloseIsPressed){
-            buttonOpenCloseIsPressed = true;
-
-            // Open and close the gripper acording to his state
-            if (isOpen) {
-                close();
-            } else {
-                open();
-            }
-        }
-
-        if (!button) {
-            buttonOpenCloseIsPressed = false;
-        }
-
-        isOpen = !isOpen;
-    }
-
     public double getPosition() {
-        return servo.getPosition() * 180.0;
+        return servo.getController().getServoPosition(5) * 180.0;
     }
 
     public boolean isClosed() {

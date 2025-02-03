@@ -20,10 +20,6 @@ public class SliderAngle extends SubsystemBase {
     private final PIDController positionPIDController;
 
     private double targetPosition = 1.0;
-    private boolean goToPositionAllowed = false;
-    private boolean homeState = false;
-    private boolean intakeState = false;
-    private boolean basketState = false;
 
     public SliderAngle(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -64,16 +60,6 @@ public class SliderAngle extends SubsystemBase {
         double velocity = positionPIDController.calculate(currentPosition, position);
         velocity = Math.max(Math.min(1.0, velocity), -1.0);
 
-        /* avoid the overheating of the motors
-        boolean isInRestState = homeState || basketState;
-        if (isInRestState &&
-                (position + Constants.SliderAngle.positionTolerance >= currentPosition &&
-                        currentPosition >= position - Constants.SliderAngle.positionTolerance)) {
-            stopMotors();
-        } else {
-            setPower(velocity);
-        }*/
-
         setPower(velocity);
 
     }
@@ -84,60 +70,30 @@ public class SliderAngle extends SubsystemBase {
 
     public void goToHomePosition() {
         targetPosition = Constants.SliderAngle.homePosition;
-
-        // change states
-        homeState = true;
-        intakeState = false;
-        basketState = false;
     }
 
     public void goToIntakePosition() {
         targetPosition = Constants.SliderAngle.intakePosition;
-
-        // change states
-        homeState = false;
-        intakeState = true;
-        basketState = false;
     }
     public void goToPosIntakePosition() {
         targetPosition = Constants.SliderAngle.posIntakePosition;
-
-        // change states
-        homeState = false;
-        intakeState = false;
-        basketState = false;
     }
 
     public void goToQuesadillaPosition() {
         targetPosition = Constants.SliderAngle.quesadillaPosition;
-
-        // change states
-        homeState = false;
-        intakeState = false;
-        basketState = false;
     }
 
     public void goToSpecimenPosition() {
         targetPosition = Constants.SliderAngle.specimenScorePosition;
-
-        // change states
-        homeState = false;
-        intakeState = false;
-        basketState = false;
     }
 
     public void goToBasketPosition() {
         targetPosition = Constants.SliderAngle.basketScorePosition;
-
-        // change states
-        homeState = false;
-        intakeState = false;
-        basketState = true;
     }
 
     public boolean isAtPosition(double setPoint) {
         double position = getAbsoluteEncoderPosition();
-        return setPoint + 0.8 >= position && position >= setPoint - 0.8;
+        return setPoint + 0.9 >= position && position >= setPoint - 0.9;
         //return position >= setPoint - 0.8;
     }
 
